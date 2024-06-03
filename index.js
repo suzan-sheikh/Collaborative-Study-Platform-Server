@@ -76,7 +76,7 @@ const verifyToken = async (req, res, next) => {
   })
 }
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@main.mq0mae1.mongodb.net/?retryWrites=true&w=majority&appName=Main`
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 
 const uri = "mongodb://localhost:27017";
 
@@ -90,10 +90,14 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const db = client.db('stayvista')
+
+
+    const db = client.db('BrainBond')
     const roomsCollection = db.collection('rooms')
     const usersCollection = db.collection('users')
     const bookingsCollection = db.collection('bookings')
+
+
     // verify admin middleware
     const verifyAdmin = async (req, res, next) => {
       console.log('hello')

@@ -236,16 +236,28 @@ async function run() {
       res.send(result);
     });
 
-
-
-
-    // get all session from db -------> running
+    // get all session from db -------> OK
     app.get("/session", async (req, res) => {
       const result = await sessionCollection.find().toArray();
       res.send(result);
     });
 
+    // Get all Approved Session from db -------> OK
+    app.get("/approved", async (req, res) => {
+      const status = "approved";
+      const query = { status: status };
+      const result = await sessionCollection.find(query).toArray();
+      res.send(result);
+    });
 
+    // Get Session query to it for upload materials from db -------> 
+    app.get("/getToID/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await sessionCollection.findOne(query);
+      res.send(result);
+    });
 
 
 

@@ -82,9 +82,9 @@ const verifyToken = async (req, res, next) => {
   });
 };
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// const uri = "mongodb://localhost:27017";
+const uri = "mongodb://localhost:27017";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -105,7 +105,7 @@ async function run() {
     const db = client.db("BrainBond");
     const sessionCollection = db.collection("session");
     const usersCollection = db.collection("users");
-    const bookingsCollection = db.collection("bookings");
+    const materialCollection = db.collection("material");
 
     // verify admin middleware
     const verifyAdmin = async (req, res, next) => {
@@ -250,7 +250,7 @@ async function run() {
       res.send(result);
     });
 
-    // Get Session query to it for upload materials from db -------> 
+    // Get Session query to it for upload materials from db -------> OK
     app.get("/getToID/:id", async (req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -258,6 +258,15 @@ async function run() {
       const result = await sessionCollection.findOne(query);
       res.send(result);
     });
+
+    // Save a material data in db  -------> OK 
+    app.post("/materials", async (req, res) => {
+      const sessionData = req.body;
+      const result = await materialCollection.insertOne(sessionData);
+      res.send(result);
+    });
+
+
 
 
 

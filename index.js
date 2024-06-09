@@ -82,9 +82,9 @@ const verifyToken = async (req, res, next) => {
   });
 };
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// const uri = "mongodb://localhost:27017";
+const uri = "mongodb://localhost:27017";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -274,6 +274,43 @@ async function run() {
     // get all users data from db -------> OK
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+
+
+     // data for pagination --------> OK
+     app.get("/jobsCount", async (req, res) => {
+      const search = req.query.search;
+      const query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } }
+        ]
+      };
+      const count = await usersCollection.countDocuments(query);
+      console.log(count);
+      res.send({ count });
+    });
+
+    // search Data get from db --------> OK
+    app.get("/allJobs", async (req, res) => {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      const search = req.query.search;
+
+      const query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } }
+        ]
+      };
+
+      const result = await usersCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
 

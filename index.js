@@ -229,6 +229,8 @@ async function run() {
       res.send(result);
     });
 
+    // --------------------------Session Related------------------------------
+
     // Save a session data in db  -------> OK
     app.post("/session", async (req, res) => {
       const sessionData = req.body;
@@ -253,16 +255,58 @@ async function run() {
     // Get Session query to it for upload materials from db -------> OK
     app.get("/getToID/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await sessionCollection.findOne(query);
       res.send(result);
     });
 
-    // Save a material data in db  -------> OK 
+    // --------------------------material Related------------------------------
+
+    // Save a material data in db  -------> OK
     app.post("/materials", async (req, res) => {
-      const sessionData = req.body;
-      const result = await materialCollection.insertOne(sessionData);
+      const materialsData = req.body;
+      const result = await materialCollection.insertOne(materialsData);
+      res.send(result);
+    });
+
+    // get all materials from db -------> OK
+    app.get("/materials", async (req, res) => {
+      const result = await materialCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Get update material data for upload from db -------> OK
+    app.get("/materialToID/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await materialCollection.findOne(query);
+      res.send(result);
+    });
+
+    // update material in db --------> OK
+    app.put("/updateMaterial/:id", async (req, res) => {
+      const id = req.params.id;
+      const materialData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...materialData,
+        },
+      };
+      const result = await materialCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // delete a material in bd -----> OK
+    app.delete("/deleteMaterial/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await materialCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -514,7 +558,7 @@ async function run() {
       });
     });
 
-    // Verify Token Middleware   --------> first time token is null
+    // Verify Token Middleware   --------> OK
     const checkToken = async (req, res, next) => {
       // console.log("inside checkToken First Time?", req.headers.authorization);
       if (!req.headers.authorization) {

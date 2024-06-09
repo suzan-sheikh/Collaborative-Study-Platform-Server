@@ -289,7 +289,6 @@ async function run() {
         ]
       };
       const count = await usersCollection.countDocuments(query);
-      console.log(count);
       res.send({ count });
     });
 

@@ -221,6 +221,20 @@ async function run() {
       res.send(result);
     });
 
+    // update user role ------------> running
+
+    app.patch("/manageAdmin/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)};   
+      const { feeType, status, price} = req.body; 
+      const updateDoc = {
+        $set: {status: status, fee: price},
+      }
+      const result = await sessionCollection.updateOne(query, updateDoc)
+      res.send(result)   
+    });
+
+      
     // --------------------------material Related------------------------------
 
     // Save a material data in db  -------> OK

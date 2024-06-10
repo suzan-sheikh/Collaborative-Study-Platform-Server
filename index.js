@@ -205,6 +205,14 @@ async function run() {
       res.send(result);
     });
 
+    // Get all Approved Session from db -------> OK
+    app.get("/manageSession", async (req, res) => {
+      const statuses = ["pending", "approved"];
+      const query = { status: { $in: statuses } };
+      const result = await sessionCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // Get Session query to it for upload materials from db -------> OK
     app.get("/getToID/:id", async (req, res) => {
       const id = req.params.id;
@@ -277,16 +285,14 @@ async function run() {
       res.send(result);
     });
 
-
-
-     // data for pagination --------> OK
-     app.get("/jobsCount", async (req, res) => {
+    // data for pagination --------> OK
+    app.get("/jobsCount", async (req, res) => {
       const search = req.query.search;
       const query = {
         $or: [
           { name: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } }
-        ]
+          { email: { $regex: search, $options: "i" } },
+        ],
       };
       const count = await usersCollection.countDocuments(query);
       res.send({ count });
@@ -301,8 +307,8 @@ async function run() {
       const query = {
         $or: [
           { name: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } }
-        ]
+          { email: { $regex: search, $options: "i" } },
+        ],
       };
 
       const result = await usersCollection

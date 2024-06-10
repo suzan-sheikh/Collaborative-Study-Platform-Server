@@ -221,8 +221,7 @@ async function run() {
       res.send(result);
     });
 
-    // update user role ------------> running
-
+    // session status update by Admin to db ------------> OK
     app.patch("/manageAdmin/update/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id)};   
@@ -230,6 +229,31 @@ async function run() {
       const updateDoc = {
         $set: {status: status, fee: price},
       }
+      const result = await sessionCollection.updateOne(query, updateDoc)
+      res.send(result)   
+    });
+
+      // delete a session to Admin from bd -----> Ok
+      app.delete("/deleteSession/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await sessionCollection.deleteOne(query);
+        res.send(result);
+      });
+  
+   // session status update by Admin to db ------------> ok
+    app.put("/rejectedAdmin/:id", async (req, res) => {
+      const id = req.params.id;
+      const { reason, feedback, status } = req.body;
+      console.log(reason, feedback, status);
+      const query = { _id: new ObjectId(id)};  
+      const updateDoc = {
+        $set: {
+          reason,
+          feedback,
+          status
+        },
+      };    
       const result = await sessionCollection.updateOne(query, updateDoc)
       res.send(result)   
     });

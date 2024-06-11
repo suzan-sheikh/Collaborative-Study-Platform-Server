@@ -225,7 +225,7 @@ async function run() {
     app.patch("/manageAdmin/update/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const { feeType, status, price } = req.body;
+      const { status, price } = req.body;
       const updateDoc = {
         $set: { status: status, fee: price },
       };
@@ -278,6 +278,14 @@ async function run() {
         $set: { status },
       };
       const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // Get all common Session for home page -------> running
+    app.get("/commonSession", async (req, res) => {
+      const status = "approved";
+      const query = { status: status };
+      const result = await sessionCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -425,7 +433,7 @@ async function run() {
     };
 
     // get users   -------> Ok example
-    app.get("/user", checkToken, async (req, res) => {
+    app.get("/user", async (req, res) => {
       // console.log(req.headers);
       const result = await usersCollection.find().toArray();
       res.send(result);

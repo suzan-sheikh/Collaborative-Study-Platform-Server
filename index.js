@@ -107,6 +107,7 @@ async function run() {
     const sessionCollection = db.collection("session");
     const usersCollection = db.collection("users");
     const materialCollection = db.collection("material");
+    const bookingCollection = db.collection("booking");
 
     // -------------------------- verify Related------------------------------
     // verify admin middleware --------> pending
@@ -303,6 +304,26 @@ async function run() {
     //     res.status(500).send({ message: "Internal server error", error });
     //   }
     // });
+    // --------------------------Student Booking Related------------------------------
+ 
+ 
+    // Student Booking dat save collection-------> Ok
+    app.post("/sessionBookingInfo", async (req, res) => {
+      const bookingInfo = req.body;
+      const result = await bookingCollection.insertOne(bookingInfo);
+      res.send(result);
+    });
+    
+    
+    // Get Booking dat -------> running
+    app.get("/sessionBookingInfo/:email", async (req, res) => {
+      const email = req.params.email
+      console.log(email);
+      const query = { 'studentEmail': email }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result);
+    });
+
     // --------------------------material Related------------------------------
 
     // Save a material data in db  -------> OK

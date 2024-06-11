@@ -224,41 +224,77 @@ async function run() {
     // session status update by Admin to db ------------> OK
     app.patch("/manageAdmin/update/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};   
-      const { feeType, status, price} = req.body; 
+      const query = { _id: new ObjectId(id) };
+      const { feeType, status, price } = req.body;
       const updateDoc = {
-        $set: {status: status, fee: price},
-      }
-      const result = await sessionCollection.updateOne(query, updateDoc)
-      res.send(result)   
+        $set: { status: status, fee: price },
+      };
+      const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
     });
 
-      // delete a session to Admin from bd -----> Ok
-      app.delete("/deleteSession/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await sessionCollection.deleteOne(query);
-        res.send(result);
-      });
-  
-   // session status update by Admin to db ------------> ok
+    // delete a session to Admin from bd -----> Ok
+    app.delete("/deleteSession/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await sessionCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // session status update by Admin to db ------------> ok
     app.put("/rejectedAdmin/:id", async (req, res) => {
       const id = req.params.id;
       const { reason, feedback, status } = req.body;
-      console.log(reason, feedback, status);
-      const query = { _id: new ObjectId(id)};  
+      const query = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
           reason,
           feedback,
-          status
+          status,
         },
-      };    
-      const result = await sessionCollection.updateOne(query, updateDoc)
-      res.send(result)   
+      };
+      const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
     });
 
-      
+    // update Admin Approved full session data ------------> Ok
+    app.put("/updateAdminSession/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const sessionData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: sessionData,
+      };
+      const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // reject Session approved request sent by tutor ------------> ok
+    app.patch("/rejectSession/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: { status },
+      };
+      const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // home page session data get conditionally  ------------> pending now working
+    // app.get("/sessionLimitData", async (req, res) => {
+    //   const { skip = 0, limit = 3 } = req.query; // Default to fetching 3 items if no limit is specified
+    //   try {
+    //     const sessions = await sessionCollection
+    //       .find()
+    //       .skip(parseInt(skip))
+    //       .limit(parseInt(limit))
+    //       .toArray();
+    //     res.send(sessions);
+    //   } catch (error) {
+    //     res.status(500).send({ message: "Internal server error", error });
+    //   }
+    // });
     // --------------------------material Related------------------------------
 
     // Save a material data in db  -------> OK
@@ -324,7 +360,7 @@ async function run() {
     });
 
     // data for pagination --------> OK
-    app.get("/jobsCount", async (req, res) => {
+    app.get("/userCount", async (req, res) => {
       const search = req.query.search;
       const query = {
         $or: [
@@ -337,7 +373,7 @@ async function run() {
     });
 
     // search Data get from db --------> OK
-    app.get("/allJobs", async (req, res) => {
+    app.get("/allUser", async (req, res) => {
       const size = parseInt(req.query.size);
       const page = parseInt(req.query.page) - 1;
       const search = req.query.search;
@@ -379,10 +415,10 @@ async function run() {
       // console.log("token", token);
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-          console.log("error", err);
+          // console.log("error", err);
           return res.status(401).send({ message: "Unauthorized access" });
         }
-        console.log("decoded value", decoded);
+        // console.log("decoded value", decoded);
         req.decoded = decoded;
         next();
       });
@@ -390,7 +426,7 @@ async function run() {
 
     // get users   -------> Ok example
     app.get("/user", checkToken, async (req, res) => {
-      console.log(req.headers);
+      // console.log(req.headers);
       const result = await usersCollection.find().toArray();
       res.send(result);
     });

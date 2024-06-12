@@ -305,6 +305,7 @@ async function run() {
     //     res.status(500).send({ message: "Internal server error", error });
     //   }
     // });
+
     // --------------------------Student Booking Related------------------------------
 
     // Student Booking dat save collection-------> Ok
@@ -354,6 +355,47 @@ async function run() {
     app.post("/createNote", async (req, res) => {
       const noteInfo = req.body;
       const result = await studentNoteCollection.insertOne(noteInfo);
+      res.send(result);
+    });
+
+    // get all session from db -------> OK
+    app.get("/studentNote", async (req, res) => {
+      const result = await studentNoteCollection.find().toArray();
+      res.send(result);
+    });
+
+    // delete a material in bd -----> OK
+    app.delete("/deleteNote/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await studentNoteCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Get update material data for upload from db -------> OK
+    app.get("/noteToID/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await studentNoteCollection.findOne(query);
+      res.send(result);
+    });
+
+    // update Note --------> running
+    app.put("/updateNote/:id", async (req, res) => {
+      const id = req.params.id;
+      const noteData = req.body;
+      console.log(id, noteData);
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...noteData,
+        },
+      };
+      const result = await studentNoteCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
 

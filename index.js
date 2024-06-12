@@ -305,22 +305,47 @@ async function run() {
     //   }
     // });
     // --------------------------Student Booking Related------------------------------
- 
- 
+
     // Student Booking dat save collection-------> Ok
     app.post("/sessionBookingInfo", async (req, res) => {
       const bookingInfo = req.body;
       const result = await bookingCollection.insertOne(bookingInfo);
       res.send(result);
     });
-    
-    
+
     // Get Booking dat -------> running
     app.get("/sessionBookingInfo/:email", async (req, res) => {
-      const email = req.params.email
+      const email = req.params.email;
       console.log(email);
-      const query = { 'studentEmail': email }
-      const result = await bookingCollection.find(query).toArray()
+      const query = { studentEmail: email };
+      const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Student Get Booking Info by id from db -------> OK
+    app.get("/getBookingToID/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingCollection.findOne(query);
+      res.send(result);
+    });
+
+     // update material in db --------> OK
+     app.put("/updateBooked/:id", async (req, res) => {
+      const id = req.params.id;
+      const materialData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...materialData,
+        },
+      };
+      const result = await bookingCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
 

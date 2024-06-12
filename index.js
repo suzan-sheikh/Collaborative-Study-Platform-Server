@@ -318,7 +318,6 @@ async function run() {
     // Get Booking dat -------> running
     app.get("/sessionBookingInfo/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email);
       const query = { studentEmail: email };
       const result = await bookingCollection.find(query).toArray();
       res.send(result);
@@ -379,11 +378,10 @@ async function run() {
       res.send(result);
     });
 
-    // update Note --------> running
+    // update Note --------> ok
     app.put("/updateNote/:id", async (req, res) => {
       const id = req.params.id;
       const noteData = req.body;
-      console.log(id, noteData);
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
@@ -396,6 +394,22 @@ async function run() {
         updateDoc,
         options
       );
+      res.send(result);
+    });
+
+    // get all rooms for host
+    app.get("/studentMaterials/:sessionId", async (req, res) => {
+      const sessionId = req.params.email;
+      let query = { sessionId };
+      const result = await studentNoteCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // all materials get by student -------> running
+    app.get("/allMaterials/:sessionID", async (req, res) => {
+      const sessionID = req.params.sessionID;
+      const query = { sessionID };
+      const result = await materialCollection.find(query).toArray();
       res.send(result);
     });
 

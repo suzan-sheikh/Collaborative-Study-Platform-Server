@@ -8,8 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 8000;
-// const { Resend } = require('resend')
-// const resend = new Resend(api_key)
+
 // middleware
 const corsOptions = {
   origin: [
@@ -25,62 +24,6 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
-
-// send email
-const sendEmail = (emailAddress, emailData) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use `true` for port 465, `false` for all other ports
-    auth: {
-      user: process.env.TRANSPORTER_EMAIL,
-      pass: process.env.TRANSPORTER_PASS,
-    },
-  });
-
-  // verify transporter
-  // verify connection configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Server is ready to take our messages");
-    }
-  });
-  const mailBody = {
-    from: `"StayVista" <${process.env.TRANSPORTER_EMAIL}>`, // sender address
-    to: emailAddress, // list of receivers
-    subject: emailData.subject, // Subject line
-    html: emailData.message, // html body
-  };
-
-  transporter.sendMail(mailBody, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email Sent: " + info.response);
-    }
-  });
-};
-
-// Verify Token Middleware
-const verifyToken = async (req, res, next) => {
-  console.log(req.headers);
-  const token = req.headers;
-  console.log(token);
-  if (!token) {
-    return res.status(401).send({ message: "unauthorized access" });
-  }
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      console.log(err);
-      return res.status(401).send({ message: "unauthorized access" });
-    }
-    req.user = decoded;
-    next();
-  });
-};
 
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ykkxidd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -193,12 +136,6 @@ async function run() {
       res.send(result);
     });
 
-    // get all session from db -------> OK
-    app.get("/session", async (req, res) => {
-      const result = await sessionCollection.find().toArray();
-      res.send(result);
-    });
-
     // Get all Approved Session from db -------> OK
     app.get("/approved", async (req, res) => {
       const status = "approved";
@@ -259,6 +196,12 @@ async function run() {
       res.send(result);
     });
 
+    // get all session from db -------> OK
+    app.get("/session", async (req, res) => {
+      const result = await sessionCollection.find().toArray();
+      res.send(result);
+    });
+
     // update Admin Approved full session data ------------> Ok
     app.put("/updateAdminSession/update/:id", async (req, res) => {
       const id = req.params.id;
@@ -268,6 +211,40 @@ async function run() {
         $set: sessionData,
       };
       const result = await sessionCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // data for pagination --------> OK
+    app.get("/sessionCount", async (req, res) => {
+      const search = req.query.search;
+      const query = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { status: { $regex: search, $options: "i" } },
+        ],
+      };
+      const count = await sessionCollection.countDocuments(query);
+      res.send({ count });
+    });
+
+    // search Data get from db --------> OK
+    app.get("/allSession", async (req, res) => {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      const search = req.query.search;
+
+      const query = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { status: { $regex: search, $options: "i" } },
+        ],
+      };
+
+      const result = await sessionCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
 
@@ -283,7 +260,7 @@ async function run() {
       res.send(result);
     });
 
-    // Get all common Session for home page -------> running
+    // Get all common Session for home page -------> ok
     app.get("/commonSession", async (req, res) => {
       const status = "approved";
       const query = { status: status };
@@ -315,7 +292,7 @@ async function run() {
       res.send(result);
     });
 
-    // Get Booking dat -------> running
+    // Get Booking dat -------> ok
     app.get("/sessionBookingInfo/:email", async (req, res) => {
       const email = req.params.email;
       const query = { studentEmail: email };
@@ -397,7 +374,7 @@ async function run() {
       res.send(result);
     });
 
-    // get all rooms for host
+    // get all student Materials -----> Ok
     app.get("/studentMaterials/:sessionId", async (req, res) => {
       const sessionId = req.params.email;
       let query = { sessionId };
@@ -405,7 +382,7 @@ async function run() {
       res.send(result);
     });
 
-    // all materials get by student -------> running
+    // all materials get by student -------> Ok
     app.get("/allMaterials/:sessionID", async (req, res) => {
       const sessionID = req.params.sessionID;
       const query = { sessionID };
@@ -464,13 +441,6 @@ async function run() {
     });
 
     // --------------------------Admin (user Related)------------------------------
-
-    // get all users data from db
-    // app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
-    //   const result = await usersCollection.find().toArray();
-    //   res.send(result);
-    // });
-
     // get all users data from db -------> OK
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -550,7 +520,6 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    // await client.db('admin').command({ ping: 1 })
     console.log("You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error

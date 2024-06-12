@@ -108,6 +108,7 @@ async function run() {
     const usersCollection = db.collection("users");
     const materialCollection = db.collection("material");
     const bookingCollection = db.collection("booking");
+    const studentNoteCollection = db.collection("studentNote");
 
     // -------------------------- verify Related------------------------------
     // verify admin middleware --------> pending
@@ -330,8 +331,8 @@ async function run() {
       res.send(result);
     });
 
-     // update material in db --------> OK
-     app.put("/updateBooked/:id", async (req, res) => {
+    // update material in db --------> OK
+    app.put("/updateBooked/:id", async (req, res) => {
       const id = req.params.id;
       const materialData = req.body;
       const query = { _id: new ObjectId(id) };
@@ -346,6 +347,13 @@ async function run() {
         updateDoc,
         options
       );
+      res.send(result);
+    });
+
+    // Save a session data in db  -------> OK
+    app.post("/createNote", async (req, res) => {
+      const noteInfo = req.body;
+      const result = await studentNoteCollection.insertOne(noteInfo);
       res.send(result);
     });
 

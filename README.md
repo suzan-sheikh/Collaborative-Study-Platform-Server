@@ -1,4 +1,4 @@
-# PetConnect Server
+# Collaborative-Study-Platform-Server
 
 **Live Link: [https://brainbond-e920d.web.app/](https://brainbond-e920d.web.app/)**
 
